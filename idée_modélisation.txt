@@ -1,0 +1,139 @@
+Entités principales :
+
+    Utilisateur : représente tout utilisateur de la plateforme, qu'il soit une personne lambda, un acteur, un réalisateur, un studio, etc.
+        Attributs : identifiant (ID), nom d'utilisateur, mot de passe, rôle, adresse email, date de création du compte, etc.
+
+    Film : représente une oeuvre cinématographique.
+        Attributs : identifiant (ID), titre, année de sortie, réalisateur, studio de production, genre, etc.
+
+    Événement : représente un événement lié au cinéma (avant-première, festival, convention, etc.).
+        Attributs : identifiant (ID), titre, date, lieu, prix, organisateurs, films au programme, etc.
+
+    Publication : représente une publication sur le forum.
+        Attributs : identifiant (ID), contenu, date de publication, type (publication de premier niveau ou réponse), auteur, etc.
+
+Relations :
+
+    Relation Suivre : représente le fait qu'un utilisateur puisse suivre un autre utilisateur.
+        Cette relation est symétrique.
+        Elle peut être représentée par une association entre deux instances de l'entité Utilisateur.
+
+    Relation Appartenir : représente le fait qu'une publication appartienne à une conversation.
+        Elle relie l'entité Publication à une entité Conversation.
+        Une publication peut appartenir à une seule conversation.
+
+    Relation Concerner : représente le fait qu'une publication concerne un film, un événement, etc.
+        Elle relie l'entité Publication à une entité Film, Événement, etc.
+        Une publication peut concerner plusieurs films, événements, etc.
+
+    Relation Réagir : représente le fait qu'un utilisateur puisse réagir à une publication en utilisant des emojis.
+        Elle relie l'entité Utilisateur à l'entité Publication.
+        Elle peut être associée à une liste d'emojis.
+
+    Relation Participer : représente le fait qu'un utilisateur participe à un événement.
+        Elle relie l'entité Utilisateur à l'entité Événement.
+        Un utilisateur peut participer à plusieurs événements et un événement peut avoir plusieurs participants.
+
+
+
+
+Schéma relationnel :
+
+Utilisateur ( 
+    ID_utilisateur INT PRIMARY KEY,
+    nom_utilisateur VARCHAR(50),
+    mot_de_passe VARCHAR(50),
+    email VARCHAR(100),
+    date_creation DATE,
+    role VARCHAR(50)
+)
+
+Film (
+    ID_film INT PRIMARY KEY,
+    titre VARCHAR(100),
+    annee_sortie INT,
+    ID_realisateur INT,
+    ID_studio INT,
+    genre VARCHAR(50),
+    FOREIGN KEY (ID_realisateur) REFERENCES Utilisateur(ID_utilisateur),
+    FOREIGN KEY (ID_studio) REFERENCES Utilisateur(ID_utilisateur)
+)
+
+Evenement (
+    ID_evenement INT PRIMARY KEY,
+    titre VARCHAR(100),
+    date DATE,
+    lieu VARCHAR(100),
+    prix DECIMAL(10, 2),
+    organisateurs TEXT
+)
+
+Conversation (
+    ID_conversation INT PRIMARY KEY
+)
+
+Publication (
+    ID_publication INT PRIMARY KEY,
+    contenu TEXT,
+    date_publication TIMESTAMP,
+    type VARCHAR(20),
+    ID_auteur INT,
+    FOREIGN KEY (ID_auteur) REFERENCES Utilisateur(ID_utilisateur)
+)
+
+Emoji (
+    ID_emoji INT PRIMARY KEY,
+    symbole VARCHAR(20)
+)
+
+Suivre (
+    ID_utilisateur_suivant INT,
+    ID_utilisateur_suivi INT,
+    PRIMARY KEY (ID_utilisateur_suivant, ID_utilisateur_suivi),
+    FOREIGN KEY (ID_utilisateur_suivant) REFERENCES Utilisateur(ID_utilisateur),
+    FOREIGN KEY (ID_utilisateur_suivi) REFERENCES Utilisateur(ID_utilisateur)
+)
+
+Appartenir (
+    ID_publication INT,
+    ID_conversation INT,
+    PRIMARY KEY (ID_publication, ID_conversation),
+    FOREIGN KEY (ID_publication) REFERENCES Publication(ID_publication),
+    FOREIGN KEY (ID_conversation) REFERENCES Conversation(ID_conversation)
+)
+
+Concerner_Film (
+    ID_publication INT,
+    ID_film INT,
+    PRIMARY KEY (ID_publication, ID_film),
+    FOREIGN KEY (ID_publication) REFERENCES Publication(ID_publication),
+    FOREIGN KEY (ID_film) REFERENCES Film(ID_film)
+)
+
+Concerner_Evenement (
+    ID_publication INT,
+    ID_evenement INT,
+    PRIMARY KEY (ID_publication, ID_evenement),
+    FOREIGN KEY (ID_publication) REFERENCES Publication(ID_publication),
+    FOREIGN KEY (ID_evenement) REFERENCES Evenement(ID_evenement)
+)
+
+Reagir (
+    ID_utilisateur INT,
+    ID_publication INT,
+    ID_emoji INT,
+    PRIMARY KEY (ID_utilisateur, ID_publication),
+    FOREIGN KEY (ID_utilisateur) REFERENCES Utilisateur(ID_utilisateur),
+    FOREIGN KEY (ID_publication) REFERENCES Publication(ID_publication),
+    FOREIGN KEY (ID_emoji) REFERENCES Emoji(ID_emoji)
+)
+
+Participer (
+    ID_utilisateur INT,
+    ID_evenement INT,
+    interet BOOLEAN,
+    participation BOOLEAN,
+    PRIMARY KEY (ID_utilisateur, ID_evenement),
+    FOREIGN KEY (ID_utilisateur) REFERENCES Utilisateur(ID_utilisateur),
+    FOREIGN KEY (ID_evenement) REFERENCES Evenement(ID_evenement)
+)
